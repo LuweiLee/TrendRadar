@@ -47,10 +47,8 @@ weight:
   hotness_weight: 0.1 # 热度权重
 
 platforms:
-  - id: "toutiao"
-    name: "今日头条"
-  - id: "baidu"
-    name: "百度热搜"
+  - id: "v2ex"
+    name: "v2ex"
   - id: "wallstreetcn-hot"
     name: "华尔街见闻"
   - id: "thepaper"
@@ -69,3 +67,7 @@ platforms:
     name: "抖音"
   - id: "zhihu"
     name: "知乎"
+  - id: "github"
+    name: "github"
+  - id: "linuxdo"
+    name: "linuxdo"
