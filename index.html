@@ -3,160 +3,1288 @@
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>频率词统计报告</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>热点新闻分析</title>
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1, h2 { color: #333; }
-            table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .word { font-weight: bold; }
-            .count { text-align: center; }
-            .percentage { text-align: center; }
-            .titles { max-width: 500px; }
-            .source { color: #666; font-style: italic; }
-            .error { color: #d9534f; }
-            .news-link { 
-                color: #007bff; 
-                text-decoration: none; 
-                border-bottom: 1px dotted #007bff;
+            * { box-sizing: border-box; }
+            body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+                margin: 0; 
+                padding: 16px; 
+                background: #fafafa;
+                color: #333;
+                line-height: 1.5;
             }
-            .news-link:hover { 
-                color: #0056b3; 
-                text-decoration: underline; 
+            
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 2px 16px rgba(0,0,0,0.06);
             }
-            .news-link:visited { 
-                color: #6f42c1; 
+            
+            .header {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                color: white;
+                padding: 32px 24px;
+                text-align: center;
             }
-            .no-link { 
-                color: #333; 
+            
+            .header-title {
+                font-size: 22px;
+                font-weight: 700;
+                margin: 0 0 20px 0;
             }
-            .new-title {
-                background-color: #fff3cd;
-                border: 1px solid #ffc107;
-                border-radius: 3px;
-                padding: 2px 6px;
-                margin: 2px 0;
+            
+            .header-info {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+                font-size: 14px;
+                opacity: 0.95;
             }
-            .new-section {
-                background-color: #d1ecf1;
-                border: 1px solid #bee5eb;
-                border-radius: 5px;
-                padding: 10px;
-                margin-top: 10px;
+            
+            .info-item {
+                text-align: center;
             }
-            .new-section h3 {
-                color: #0c5460;
+            
+            .info-label {
+                display: block;
+                font-size: 12px;
+                opacity: 0.8;
+                margin-bottom: 4px;
+            }
+            
+            .info-value {
+                font-weight: 600;
+                font-size: 16px;
+            }
+            
+            .content {
+                padding: 24px;
+            }
+            
+            .word-group {
+                margin-bottom: 40px;
+            }
+            
+            .word-group:first-child {
                 margin-top: 0;
+            }
+            
+            .word-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            .word-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .word-name {
+                font-size: 17px;
+                font-weight: 600;
+                color: #1a1a1a;
+            }
+            
+            .word-count {
+                color: #666;
+                font-size: 13px;
+                font-weight: 500;
+            }
+            
+            .word-count.hot { color: #dc2626; font-weight: 600; }
+            .word-count.warm { color: #ea580c; font-weight: 600; }
+            
+            .word-index {
+                color: #999;
+                font-size: 12px;
+            }
+            
+            .news-item {
+                margin-bottom: 20px;
+                padding: 16px 0;
+                border-bottom: 1px solid #f5f5f5;
+                position: relative;
+                display: flex;
+                gap: 12px;
+                align-items: center;
+            }
+            
+            .news-item:last-child {
+                border-bottom: none;
+            }
+            
+            .news-item.new::after {
+                content: "NEW";
+                position: absolute;
+                top: 12px;
+                right: 0;
+                background: #fbbf24;
+                color: #92400e;
+                font-size: 9px;
+                font-weight: 700;
+                padding: 3px 6px;
+                border-radius: 4px;
+                letter-spacing: 0.5px;
+            }
+            
+            .news-number {
+                color: #999;
+                font-size: 13px;
+                font-weight: 600;
+                min-width: 20px;
+                text-align: center;
+                flex-shrink: 0;
+                background: #f8f9fa;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                align-self: flex-start;
+                margin-top: 8px;
+            }
+            
+            .news-content {
+                flex: 1;
+                min-width: 0;
+                padding-right: 40px;
+            }
+            
+            .news-item.new .news-content {
+                padding-right: 50px;
+            }
+            
+            .news-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+                flex-wrap: wrap;
+            }
+            
+            .source-name {
+                color: #666;
+                font-size: 12px;
+                font-weight: 500;
+            }
+            
+            .rank-num {
+                color: #fff;
+                background: #6b7280;
+                font-size: 10px;
+                font-weight: 700;
+                padding: 2px 6px;
+                border-radius: 10px;
+                min-width: 18px;
+                text-align: center;
+            }
+            
+            .rank-num.top { background: #dc2626; }
+            .rank-num.high { background: #ea580c; }
+            
+            .time-info {
+                color: #999;
+                font-size: 11px;
+            }
+            
+            .count-info {
+                color: #059669;
+                font-size: 11px;
+                font-weight: 500;
+            }
+            
+            .news-title {
+                font-size: 15px;
+                line-height: 1.4;
+                color: #1a1a1a;
+                margin: 0;
+            }
+            
+            .news-link {
+                color: #2563eb;
+                text-decoration: none;
+            }
+            
+            .news-link:hover {
+                text-decoration: underline;
+            }
+            
+            .news-link:visited {
+                color: #7c3aed;
+            }
+            
+            .new-section {
+                margin-top: 40px;
+                padding-top: 24px;
+                border-top: 2px solid #f0f0f0;
+            }
+            
+            .new-section-title {
+                color: #1a1a1a;
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0 0 20px 0;
+            }
+            
+            .new-source-group {
+                margin-bottom: 24px;
+            }
+            
+            .new-source-title {
+                color: #666;
+                font-size: 13px;
+                font-weight: 500;
+                margin: 0 0 12px 0;
+                padding-bottom: 6px;
+                border-bottom: 1px solid #f5f5f5;
+            }
+            
+            .new-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 8px 0;
+                border-bottom: 1px solid #f9f9f9;
+            }
+            
+            .new-item:last-child {
+                border-bottom: none;
+            }
+            
+            .new-item-number {
+                color: #999;
+                font-size: 12px;
+                font-weight: 600;
+                min-width: 18px;
+                text-align: center;
+                flex-shrink: 0;
+                background: #f8f9fa;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .new-item-rank {
+                color: #fff;
+                background: #6b7280;
+                font-size: 10px;
+                font-weight: 700;
+                padding: 3px 6px;
+                border-radius: 8px;
+                min-width: 20px;
+                text-align: center;
+                flex-shrink: 0;
+            }
+            
+            .new-item-rank.top { background: #dc2626; }
+            .new-item-rank.high { background: #ea580c; }
+            
+            .new-item-content {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .new-item-title {
+                font-size: 14px;
+                line-height: 1.4;
+                color: #1a1a1a;
+                margin: 0;
+            }
+            
+            .error-section {
+                background: #fef2f2;
+                border: 1px solid #fecaca;
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 24px;
+            }
+            
+            .error-title {
+                color: #dc2626;
+                font-size: 14px;
+                font-weight: 600;
+                margin: 0 0 8px 0;
+            }
+            
+            .error-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .error-item {
+                color: #991b1b;
+                font-size: 13px;
+                padding: 2px 0;
+                font-family: 'SF Mono', Consolas, monospace;
+            }
+            
+            @media (max-width: 480px) {
+                body { padding: 12px; }
+                .header { padding: 24px 20px; }
+                .content { padding: 20px; }
+                .header-info { grid-template-columns: 1fr; gap: 12px; }
+                .news-header { gap: 6px; }
+                .news-content { padding-right: 45px; }
+                .news-item { gap: 8px; }
+                .new-item { gap: 8px; }
+                .news-number { width: 20px; height: 20px; font-size: 12px; }
             }
         </style>
     </head>
     <body>
-        <h1>频率词统计报告</h1>
-    <p>报告类型: 当日汇总</p><p>总标题数: 470</p><p>生成时间: 2025-09-12 09:51:53</p>
-        <table>
-            <tr>
-                <th>排名</th>
-                <th>频率词</th>
-                <th>出现次数</th>
-                <th>占比</th>
-                <th>相关标题</th>
-            </tr>
-    
-            <tr>
-                <td>1</td>
-                <td class="word">国产 中国</td>
-                <td class="count">27</td>
-                <td class="percentage">5.74%</td>
-                <td class="titles">[今日头条] <a href="https://www.toutiao.com/trending/7548466865518051347/" target="_blank" class="news-link">来看中国外贸的突围密码</a> <font color='red'><strong>[3]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[财联社热门] <a href="https://www.cls.cn/detail/2142628" target="_blank" class="news-link">中国央行与印尼央行共同启动双边交易本币结算框架和二维码互联互通合作项目</a> <font color='red'><strong>[4 - 5]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[抖音] <a href="https://www.douyin.com/hot/2233362" target="_blank" class="news-link">星巴克中国出售进入倒计时</a> <font color='red'><strong>[1 - 19]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[百度热搜] <a href="https://www.baidu.com/s?wd=%E9%9F%A9%E5%9B%BD%E6%B5%B7%E8%AD%A6%E4%B8%BA%E6%95%91%E4%B8%AD%E5%9B%BD%E8%80%81%E4%BA%BA%E4%B8%8D%E5%B9%B8%E9%81%87%E9%9A%BE" target="_blank" class="news-link">韩国海警为救中国老人不幸遇难</a> <font color='red'><strong>[5 - 17]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[微博] <a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E9%9F%A9%E5%9B%BD%E6%B5%B7%E8%AD%A6%E5%B0%86%E6%95%91%E7%94%9F%E8%A1%A3%E8%AE%A9%E7%BB%99%E4%B8%AD%E5%9B%BD%E8%80%81%E4%BA%BA%E5%90%8E%E9%81%87%E9%9A%BE%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26cate%3D5001%26pos%3D10%26stream_entry_id%3D31%26flag%3D0%26lcate%3D5001%26c_type%3D31%26band_rank%3D9%26q%3D%2523%25E9%259F%25A9%25E5%259B%25BD%25E6%25B5%25B7%25E8%25AD%25A6%25E5%25B0%2586%25E6%2595%2591%25E7%2594%259F%25E8%25A1%25A3%25E8%25AE%25A9%25E7%25BB%2599%25E4%25B8%25AD%25E5%259B%25BD%25E8%2580%2581%25E4%25BA%25BA%25E5%2590%258E%25E9%2581%2587%25E9%259A%25BE%2523%26filter_type%3Drealtimehot%26dgr%3D0%26realpos%3D9%26display_time%3D1757608222%26pre_seqid%3D17576082223430221473862" target="_blank" class="news-link">韩国海警将救生衣让给中国老人后遇难</a> <font color='red'><strong>[4 - 15]</strong></font> <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[知乎] <a href="https://www.zhihu.com/question/1949141640016008427" target="_blank" class="news-link">日本将部署远程导弹，射程覆盖中国沿海地区，如何看待日本这一行为？这体现日方的哪些动机？</a> [6 - 10] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[财联社热门] <a href="https://www.cls.cn/detail/2142653" target="_blank" class="news-link">全球最长航线即将启航！中国直飞阿根廷 全程2万公里无需换乘</a> [8 - 13] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548775353360973843/" target="_blank" class="news-link">韩海警将救生衣让给中国老人后遇难</a> [9 - 27] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(12次)</font><br>[澎湃新闻] <a href="https://m.thepaper.cn/newsDetail_forward_31594558" target="_blank" class="news-link">外交部：黄岩岛是中国固有领土，中方不接受菲律宾所谓的“抗议”</a> [10 - 16] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[百度热搜] <a href="https://www.baidu.com/s?wd=%E4%B8%AD%E5%9B%BD%E7%9B%B4%E9%A3%9E%E9%98%BF%E6%A0%B9%E5%BB%B7+%E5%85%A8%E7%90%83%E6%9C%80%E9%95%BF%E8%88%AA%E7%BA%BF%E5%B0%86%E5%90%AF%E8%88%AA" target="_blank" class="news-link">中国直飞阿根廷 全球最长航线将启航</a> [10 - 24] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[凤凰网] <a href="https://news.ifeng.com/c/8mYv6QaDdD6" target="_blank" class="news-link">针对中国人，NASA新动作</a> [10] <font color='grey'>- [00时30分 ~ 07时22分]</font> <font color='green'>(13次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E5%B0%8F%E9%B9%BF%E6%8E%A2%E7%B4%A2%E4%B8%AD%E5%9B%BD%E6%9C%80%E5%8E%9F%E5%A7%8B%E7%9A%84%E5%9C%9F%E5%9C%B0" target="_blank" class="news-link">小鹿探索中国最原始的土地</a> [18 - 29] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(13次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E7%8E%8B%E8%BE%B0%E8%A2%AB%E5%85%8D%E5%8E%BB%E4%B8%AD%E5%9B%BD%E5%B7%A5%E7%A8%8B%E9%99%A2%E5%89%AF%E9%99%A2%E9%95%BF%E8%81%8C%E5%8A%A1" target="_blank" class="news-link">王辰被免去中国工程院副院长职务</a> [21 - 28] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548737319542013978/" target="_blank" class="news-link">王辰被免去中国工程院副院长职务</a> [21 - 22] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[百度热搜] <a href="https://www.baidu.com/s?wd=%E4%B8%AD%E5%9B%BD%E7%AC%AC%E4%BA%8C%E6%89%B9%E6%8F%B4%E5%8A%A9%E9%98%BF%E7%81%BE%E7%89%A9%E8%B5%84%E6%8A%B5%E8%BE%BE%E5%96%80%E5%B8%83%E5%B0%94" target="_blank" class="news-link">中国第二批援助阿灾物资抵达喀布尔</a> [10 - 29] <font color='grey'>- [03时39分 ~ 07时22分]</font> <font color='green'>(8次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548548311167340068/" target="_blank" class="news-link">全球新首富现任妻子为中国姑娘</a> [19 - 29] <font color='grey'>- [04时23分 ~ 07时40分]</font> <font color='green'>(8次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548758368194678315/" target="_blank" class="news-link">福建舰出海 中国为何还需要航母</a> <font color='red'><strong>[5 - 28]</strong></font> <font color='grey'>- [03时18分 ~ 09时51分]</font> <font color='green'>(6次)</font><br>[凤凰网] <a href="https://news.ifeng.com/c/8ma0p4yB43a" target="_blank" class="news-link">官宣福建舰首次“远航秀”，专家：中国的三航母时代指日可待</a> <font color='red'><strong>[2]</strong></font> <font color='grey'>- [07时40分 ~ 09时51分]</font> <font color='green'>(2次)</font><br><div class='new-title'>🆕 [凤凰网] <a href="https://news.ifeng.com/c/8ma6O1quoxu" target="_blank" class="news-link">这个新动向，中国须高度警惕</a> <font color='red'><strong>[4]</strong></font> <font color='grey'>- 09时51分</font></div><br>[财联社热门] <a href="https://www.cls.cn/detail/2142285" target="_blank" class="news-link">外资热情势不可挡！大摩：超九成美国投资者愿加仓中国资产</a> [12 - 13] <font color='grey'>- [00时30分 ~ 03时18分]</font> <font color='green'>(5次)</font><br>[百度热搜] <a href="https://www.baidu.com/s?wd=%E5%9B%BD%E4%BA%A7%E7%A6%BB%E5%AD%90%E5%9B%9E%E6%97%8B%E5%8A%A0%E7%83%AD%E7%B3%BB%E7%BB%9F%E7%A0%94%E5%88%B6%E6%88%90%E5%8A%9F" target="_blank" class="news-link">国产离子回旋加热系统研制成功</a> [17 - 30] <font color='grey'>- [03时39分 ~ 05时39分]</font> <font color='green'>(5次)</font><br>[财联社热门] <a href="https://www.cls.cn/detail/2142884" target="_blank" class="news-link">【早报】墨西哥称计划对中国等国征收50%的关税，外交部回应；我国有望诞生一世界级金矿</a> <font color='red'><strong>[1 - 9]</strong></font> <font color='grey'>- [07时40分 ~ 09时51分]</font> <font color='green'>(2次)</font><br>[微博] <a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E7%8E%8B%E8%BE%B0%E8%A2%AB%E5%85%8D%E5%8E%BB%E4%B8%AD%E5%9B%BD%E5%B7%A5%E7%A8%8B%E9%99%A2%E5%89%AF%E9%99%A2%E9%95%BF%E8%81%8C%E5%8A%A1%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26cate%3D5001%26pos%3D26%26stream_entry_id%3D31%26flag%3D0%26lcate%3D5001%26c_type%3D31%26band_rank%3D26%26q%3D%2523%25E7%258E%258B%25E8%25BE%25B0%25E8%25A2%25AB%25E5%2585%258D%25E5%258E%25BB%25E4%25B8%25AD%25E5%259B%25BD%25E5%25B7%25A5%25E7%25A8%258B%25E9%2599%25A2%25E5%2589%25AF%25E9%2599%25A2%25E9%2595%25BF%25E8%2581%258C%25E5%258A%25A1%2523%26filter_type%3Drealtimehot%26dgr%3D0%26realpos%3D26%26display_time%3D1757621367%26pre_seqid%3D175762136769892214746148" target="_blank" class="news-link">王辰被免去中国工程院副院长职务</a> [25 - 26] <font color='grey'>- [04时23分 ~ 05时20分]</font> <font color='green'>(3次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548007302146818087/" target="_blank" class="news-link">美大豆收获季最大买家中国未下一单</a> [28 - 29] <font color='grey'>- [05时39分 ~ 06时40分]</font> <font color='green'>(3次)</font><br><div class='new-title'>🆕 [知乎] <a href="https://www.zhihu.com/question/1949200132173173317" target="_blank" class="news-link">中国国防部长董军 9 日晚同美国国防部长视频通话，哪些信息值得关注？</a> [12] <font color='grey'>- 09时51分</font></div><br><div class='new-title'>🆕 [今日头条] <a href="https://www.toutiao.com/trending/7548425148526182436/" target="_blank" class="news-link">海口全城点亮“中国红”迎接英雄回家</a> [19] <font color='grey'>- 09时51分</font></div><br><div class='new-title'>🆕 [百度热搜] <a href="https://www.baidu.com/s?wd=%E7%89%9B%E5%BC%B9%E7%90%B4%EF%BC%9A%E8%BF%99%E4%B8%AA%E6%96%B0%E5%8A%A8%E5%90%91+%E4%B8%AD%E5%9B%BD%E9%A1%BB%E9%AB%98%E5%BA%A6%E8%AD%A6%E6%83%95" target="_blank" class="news-link">牛弹琴：这个新动向 中国须高度警惕</a> [19] <font color='grey'>- 09时51分</font></div></td>
-            </tr>
-        
-            <tr>
-                <td>2</td>
-                <td class="word">美国 欧洲 非洲 亚洲 南极 北极 北美 南美</td>
-                <td class="count">20</td>
-                <td class="percentage">4.26%</td>
-                <td class="titles">[财联社热门] <a href="https://www.cls.cn/detail/2142656" target="_blank" class="news-link">美国CPI通胀较前月走高 但不会阻止美联储下周降息</a> <font color='red'><strong>[1 - 2]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[凤凰网] <a href="https://news.ifeng.com/c/8mYrRk0lAwo" target="_blank" class="news-link">查理·柯克的“人血馒头”，美国两派打算怎么吃？</a> <font color='red'><strong>[3 - 4]</strong></font> <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[华尔街见闻] <a href="https://wallstreetcn.com/articles/3755424" target="_blank" class="news-link">通胀基本符合预期，美国8月CPI同比上涨2.9%，环比升至0.4%</a> <font color='red'><strong>[2 - 6]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[知乎] <a href="https://www.zhihu.com/question/1949379106606117291" target="_blank" class="news-link">政治盟友演讲时遭枪击身亡，特朗普下令全美降半旗，此事将对美国政坛产生哪些影响？</a> <font color='red'><strong>[3 - 7]</strong></font> <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E7%BE%8E%E5%9B%BDUP%E5%88%86%E6%9E%90%E6%9F%A5%E7%90%86%E6%9F%AF%E5%85%8B%E9%81%AD%E6%9E%AA%E5%87%BB" target="_blank" class="news-link">美国UP分析查理柯克遭枪击</a> <font color='red'><strong>[4 - 9]</strong></font> <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548792172896587305/" target="_blank" class="news-link">美国“网红”柯克什么来头</a> <font color='red'><strong>[1 - 14]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[知乎] <a href="https://www.zhihu.com/question/1949125421812639200" target="_blank" class="news-link">我国发现「亚洲锂腰带」，长度达 2800 公里，这一发现意味着什么？</a> <font color='red'><strong>[4 - 13]</strong></font> <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[财联社热门] <a href="https://www.cls.cn/detail/2142657" target="_blank" class="news-link">美国8月CPI同比增长2.9% 三大期指小幅走高 | 今夜看点</a> [9 - 10] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[百度热搜] <a href="https://www.baidu.com/s?wd=%E8%A2%AB%E7%BE%8E%E5%9B%BD%E8%83%8C%E5%8F%9B%EF%BC%9F%E5%8D%A1%E5%A1%94%E5%B0%94%E9%A6%96%E7%9B%B8%EF%BC%9A%E6%88%91%E4%B8%8D%E8%83%BD%E7%9B%B4%E8%A8%80" target="_blank" class="news-link">被美国背叛？卡塔尔首相：我不能直言</a> [6 - 29] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(13次)</font><br>[抖音] <a href="https://www.douyin.com/hot/2233059" target="_blank" class="news-link">芬兰男篮队史首进欧洲杯四强</a> [9 - 28] <font color='grey'>- [02时31分 ~ 07时40分]</font> <font color='green'>(10次)</font><br>[澎湃新闻] <a href="https://m.thepaper.cn/newsDetail_forward_31593442" target="_blank" class="news-link">美国为他降半旗，被枪杀的MAGA大“网红”查理·柯克是谁？</a> [11 - 15] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E6%9F%A5%E7%90%86%E6%9F%AF%E5%85%8B%E9%81%AD%E6%9E%AA%E5%87%BB%E6%9A%B4%E9%9C%B2%E7%BE%8E%E5%9B%BD%E4%B8%89%E5%A4%A7%E9%9A%BE%E9%A2%98" target="_blank" class="news-link">查理柯克遭枪击暴露美国三大难题</a> [12 - 28] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[凤凰网] <a href="https://news.ifeng.com/c/8mZ8gAGsmv3" target="_blank" class="news-link">被美国背叛了吗？卡塔尔首相：我不能直言</a> [12] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[澎湃新闻] <a href="https://m.thepaper.cn/newsDetail_forward_31593056" target="_blank" class="news-link">视频｜一声枪响，特朗普盟友倒在美国校园演讲现场的血泊中身亡</a> [14 - 18] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br>[澎湃新闻] <a href="https://m.thepaper.cn/newsDetail_forward_31594424" target="_blank" class="news-link">特朗普盟友遇刺：政治暴力成美国“残酷常态”，言论武器化带来全球威胁</a> [16 - 20] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[百度热搜] <a href="https://www.baidu.com/s?wd=%E5%8C%97%E4%BA%AC%E5%B0%86%E8%BF%9B%E5%85%A5%E7%BE%8E%E5%9B%BD%E7%99%BD%E8%9B%BE%E5%B9%BC%E8%99%AB%E5%8D%B1%E5%AE%B3%E9%AB%98%E5%B3%B0%E6%9C%9F" target="_blank" class="news-link">北京将进入美国白蛾幼虫危害高峰期</a> [19 - 28] <font color='grey'>- [04时23分 ~ 07时22分]</font> <font color='green'>(5次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E4%BB%8E%E6%9F%A5%E7%90%86%E6%9F%AF%E5%85%8B%E4%B9%8B%E6%AD%BB%E7%9C%8B%E7%BE%8E%E5%9B%BD%E6%94%BF%E6%B2%BB%E6%9A%B4%E5%8A%9B" target="_blank" class="news-link">从查理柯克之死看美国政治暴力</a> [7] <font color='grey'>- 00时30分</font><br>[微博] <a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E4%B8%80%E5%90%8D%E7%BD%91%E7%BA%A2%E8%A2%AB%E6%9D%80%E7%BE%8E%E5%9B%BD%E4%B8%BA%E4%BD%95%E4%BC%9A%E9%99%8D%E5%8D%8A%E6%97%97%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26cate%3D5001%26pos%3D13%26stream_entry_id%3D31%26flag%3D0%26lcate%3D5001%26c_type%3D31%26band_rank%3D12%26q%3D%2523%25E4%25B8%2580%25E5%2590%258D%25E7%25BD%2591%25E7%25BA%25A2%25E8%25A2%25AB%25E6%259D%2580%25E7%25BE%258E%25E5%259B%25BD%25E4%25B8%25BA%25E4%25BD%2595%25E4%25BC%259A%25E9%2599%258D%25E5%258D%258A%25E6%2597%2597%2523%26filter_type%3Drealtimehot%26dgr%3D0%26realpos%3D12%26display_time%3D1757608222%26pre_seqid%3D17576082223430221473862" target="_blank" class="news-link">一名网红被杀美国为何会降半旗</a> [12] <font color='grey'>- 00时30分</font><br><div class='new-title'>🆕 [百度热搜] <a href="https://www.baidu.com/s?wd=%E4%B8%80%E5%90%8D%E2%80%9C%E7%BD%91%E7%BA%A2%E2%80%9D%E8%A2%AB%E6%9D%80+%E7%BE%8E%E5%9B%BD%E4%B8%BA%E4%BD%95%E4%BC%9A%E9%99%8D%E5%8D%8A%E6%97%97" target="_blank" class="news-link">一名“网红”被杀 美国为何会降半旗</a> [24] <font color='grey'>- 09时51分</font></div><br><div class='new-title'>🆕 [微博] <a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E5%8D%A1%E5%A1%94%E5%B0%94%E9%A6%96%E7%9B%B8%E9%81%97%E6%86%BE%E7%BE%8E%E5%9B%BD%E6%83%85%E6%8A%A5%E5%A4%AA%E8%BF%9F%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26realpos%3D25%26filter_type%3Drealtimehot%26c_type%3D31%26flag%3D0%26lcate%3D5001%26band_rank%3D25%26q%3D%2523%25E5%258D%25A1%25E5%25A1%2594%25E5%25B0%2594%25E9%25A6%2596%25E7%259B%25B8%25E9%2581%2597%25E6%2586%25BE%25E7%25BE%258E%25E5%259B%25BD%25E6%2583%2585%25E6%258A%25A5%25E5%25A4%25AA%25E8%25BF%259F%2523%26cate%3D5001%26stream_entry_id%3D31%26pos%3D26%26dgr%3D0%26display_time%3D1757641810%26pre_seqid%3D17576418104000203120743" target="_blank" class="news-link">卡塔尔首相遗憾美国情报太迟</a> [25] <font color='grey'>- 09时51分</font></div></td>
-            </tr>
-        
-            <tr>
-                <td>3</td>
-                <td class="word">苹果 库克 iphone ipad mac ios</td>
-                <td class="count">9</td>
-                <td class="percentage">1.91%</td>
-                <td class="titles">[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E5%AE%9E%E6%B5%8BiPhone17%E5%B1%B1%E5%AF%A8%E6%9C%BA" target="_blank" class="news-link">实测iPhone17山寨机</a> [10 - 26] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[今日头条] <a href="https://www.toutiao.com/trending/7548670117173792275/" target="_blank" class="news-link">你会考虑购买iPhone 17吗</a> [11 - 16] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[知乎] <a href="https://www.zhihu.com/question/1948934008978240284" target="_blank" class="news-link">iPhone 17 系列 9 月 12 日 20 点开启预售，你会入手吗？你选择入手哪款？</a> [11 - 17] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E5%90%90%E6%A7%BD%E5%BC%8F%E8%A7%A3%E6%9E%90%E8%8B%B9%E6%9E%9C%E5%8F%91%E5%B8%83%E4%BC%9A" target="_blank" class="news-link">吐槽式解析苹果发布会</a> [13 - 29] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[贴吧] <a href="https://tieba.baidu.com/hottopic/browse/hottopic?topic_id=28344930&amp;amp;topic_name=%E8%8B%B9%E6%9E%9C%E6%98%AF%E6%87%82%E5%BE%97%E7%BB%B4%E6%8A%A4%E9%9F%A9%E7%94%B7%E8%87%AA%E5%B0%8A%E5%BF%83%E7%9A%84" target="_blank" class="news-link">苹果是懂得维护韩男自尊心的</a> [14 - 15] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=iPhone17%E9%9A%90%E8%97%8F%E7%9A%84%E4%B8%89%E5%A4%A7%E7%BC%BA%E7%82%B9" target="_blank" class="news-link">iPhone17隐藏的三大缺点</a> [16 - 28] <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br>[抖音] <a href="https://www.douyin.com/hot/2231629" target="_blank" class="news-link">iPhone 17系列值得买吗</a> [23 - 30] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(13次)</font><br>[抖音] <a href="https://www.douyin.com/hot/2232949" target="_blank" class="news-link">6分钟看完苹果发布会的转场片段</a> [10 - 30] <font color='grey'>- [01时20分 ~ 06时40分]</font> <font color='green'>(7次)</font><br><div class='new-title'>🆕 [微博] <a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23iPhoneAir%E5%9C%A8%E5%8D%8E%E5%8F%91%E5%94%AE%E5%BB%B6%E6%9C%9F%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26realpos%3D17%26filter_type%3Drealtimehot%26c_type%3D31%26flag%3D1%26lcate%3D5001%26band_rank%3D17%26q%3D%2523iPhoneAir%25E5%259C%25A8%25E5%258D%258E%25E5%258F%2591%25E5%2594%25AE%25E5%25BB%25B6%25E6%259C%259F%2523%26cate%3D5001%26stream_entry_id%3D31%26pos%3D18%26dgr%3D0%26display_time%3D1757641810%26pre_seqid%3D17576418104000203120743" target="_blank" class="news-link">iPhoneAir在华发售延期</a> [17] <font color='grey'>- 09时51分</font></div></td>
-            </tr>
-        
-            <tr>
-                <td>4</td>
-                <td class="word">ai 人工智能</td>
-                <td class="count">3</td>
-                <td class="percentage">0.64%</td>
-                <td class="titles">[华尔街见闻] <a href="https://wallstreetcn.com/articles/3755377" target="_blank" class="news-link">创业板暴涨超5%，AI硬件股掀涨停潮，“易中天”大涨，恒指低开高走守住26000点，创新药跌幅显著收窄</a> <font color='red'><strong>[5 - 9]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font><br><div class='new-title'>🆕 [财联社热门] <a href="https://www.cls.cn/detail/2142927" target="_blank" class="news-link">国家发改委：加大人工智能领域金融和财政支持力度</a> <font color='red'><strong>[4]</strong></font> <font color='grey'>- 09时51分</font></div><br>[财联社热门] <a href="https://www.cls.cn/detail/2142858" target="_blank" class="news-link">AI的风猛吹存储芯片：美光科技、闪迪暴拉七连阳</a> [7 - 13] <font color='grey'>- [07时22分 ~ 09时51分]</font> <font color='green'>(3次)</font></td>
-            </tr>
-        
-            <tr>
-                <td>5</td>
-                <td class="word">宇树 王兴兴</td>
-                <td class="count">2</td>
-                <td class="percentage">0.43%</td>
-                <td class="titles">[财联社热门] <a href="https://www.cls.cn/detail/2142476" target="_blank" class="news-link">持仓宇树科技0.51%股权的这家房企 连收6个涨停板</a> <font color='red'><strong>[1 - 3]</strong></font> <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(14次)</font><br><div class='new-title'>🆕 [财联社热门] <a href="https://www.cls.cn/detail/2142938" target="_blank" class="news-link">9月12日投资避雷针：7天暴涨近90% 人气股提示称仅间接持有宇树科技0.3%股权</a> [12] <font color='grey'>- 09时51分</font></div></td>
-            </tr>
-        
-            <tr>
-                <td>6</td>
-                <td class="word">马斯克 特斯拉 推特 space</td>
-                <td class="count">2</td>
-                <td class="percentage">0.43%</td>
-                <td class="titles">[华尔街见闻] <a href="https://wallstreetcn.com/articles/3755347" target="_blank" class="news-link">埃里森一度超马斯克登顶全球首富！甲骨文股价飙升推动财富暴增890亿美元</a> <font color='red'><strong>[4 - 6]</strong></font> <font color='grey'>- [00时30分 ~ 06时40分]</font> <font color='green'>(12次)</font><br>[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E7%89%B9%E6%96%AF%E6%8B%89HW3%E7%A1%AC%E4%BB%B6FSD%E5%9B%BD%E5%86%85%E9%A6%96%E8%AF%95" target="_blank" class="news-link">特斯拉HW3硬件FSD国内首试</a> <font color='red'><strong>[3 - 19]</strong></font> <font color='grey'>- [00时30分 ~ 09时51分]</font> <font color='green'>(15次)</font></td>
-            </tr>
-        
-            <tr>
-                <td>7</td>
-                <td class="word">科技</td>
-                <td class="count">2</td>
-                <td class="percentage">0.43%</td>
-                <td class="titles">[华尔街见闻] <a href="https://wallstreetcn.com/articles/3755317" target="_blank" class="news-link">科技股力挺标普纳指新高，甲骨文暴涨36%，中概股回调，美债走强</a> <font color='red'><strong>[1 - 7]</strong></font> <font color='grey'>- [00时30分 ~ 07时22分]</font> <font color='green'>(13次)</font><br>[财联社热门] <a href="https://www.cls.cn/detail/2142369" target="_blank" class="news-link">【焦点复盘】甲骨文飙升引爆硬科技集体反攻，创指、深成指齐创年内新高，全市场近150股涨超9%</a> [8 - 9] <font color='grey'>- [00时30分 ~ 07时22分]</font> <font color='green'>(13次)</font></td>
-            </tr>
-        
-            <tr>
-                <td>8</td>
-                <td class="word">DeepSeek 梁文锋</td>
-                <td class="count">1</td>
-                <td class="percentage">0.21%</td>
-                <td class="titles"><div class='new-title'>🆕 [华尔街见闻] <a href="https://wallstreetcn.com/articles/3755448" target="_blank" class="news-link">阿里DeepSeek时刻！开源新架构模型：推理快10倍、成本暴降90%</a> [10] <font color='grey'>- 09时51分</font></div></td>
-            </tr>
-        
-            <tr>
-                <td>9</td>
-                <td class="word">chatgpt Sam Altman openai</td>
-                <td class="count">1</td>
-                <td class="percentage">0.21%</td>
-                <td class="titles">[华尔街见闻] <a href="https://wallstreetcn.com/articles/3755415" target="_blank" class="news-link">对甲骨文“炸裂大单”的质疑：全指望OpenAI、收入都在长期、能赚钱吗、有钱建吗？</a> [6 - 10] <font color='grey'>- [04时39分 ~ 09时51分]</font> <font color='green'>(8次)</font></td>
-            </tr>
-        
-            <tr>
-                <td>10</td>
-                <td class="word">手机</td>
-                <td class="count">1</td>
-                <td class="percentage">0.21%</td>
-                <td class="titles">[bilibili 热搜] <a href="https://search.bilibili.com/all?keyword=%E6%B7%98%E6%B1%B0128G%E6%89%8B%E6%9C%BA%E8%83%BD%E5%90%A6%E7%BC%93%E8%A7%A3%E5%82%A8%E5%AD%98%E7%84%A6%E8%99%91" target="_blank" class="news-link">淘汰128G手机能否缓解储存焦虑</a> [22 - 30] <font color='grey'>- [03时18分 ~ 09时51分]</font> <font color='green'>(9次)</font></td>
-            </tr>
-        
-            <tr>
-                <td>11</td>
-                <td class="word">月球 登月 火星 宇宙 飞船 外星人 UFO</td>
-                <td class="count">1</td>
-                <td class="percentage">0.21%</td>
-                <td class="titles">[今日头条] <a href="https://www.toutiao.com/trending/7548747759587708442/" target="_blank" class="news-link">美在火星发现最清晰的古代生命迹象</a> [26 - 30] <font color='grey'>- [00时30分 ~ 07时40分]</font> <font color='green'>(5次)</font></td>
-            </tr>
-        
-        </table>
-    
-        <div class="new-section">
-            <h3>🆕 本次新增热点新闻 (共 10 条)</h3>
-        <h4>今日头条 (1 条)</h4><ul><li><a href="https://www.toutiao.com/trending/7548425148526182436/" target="_blank" class="news-link">海口全城点亮“中国红”迎接英雄回家</a> [19]</li></ul><h4>百度热搜 (2 条)</h4><ul><li><a href="https://www.baidu.com/s?wd=%E7%89%9B%E5%BC%B9%E7%90%B4%EF%BC%9A%E8%BF%99%E4%B8%AA%E6%96%B0%E5%8A%A8%E5%90%91+%E4%B8%AD%E5%9B%BD%E9%A1%BB%E9%AB%98%E5%BA%A6%E8%AD%A6%E6%83%95" target="_blank" class="news-link">牛弹琴：这个新动向 中国须高度警惕</a> [19]</li><li><a href="https://www.baidu.com/s?wd=%E4%B8%80%E5%90%8D%E2%80%9C%E7%BD%91%E7%BA%A2%E2%80%9D%E8%A2%AB%E6%9D%80+%E7%BE%8E%E5%9B%BD%E4%B8%BA%E4%BD%95%E4%BC%9A%E9%99%8D%E5%8D%8A%E6%97%97" target="_blank" class="news-link">一名“网红”被杀 美国为何会降半旗</a> [24]</li></ul><h4>华尔街见闻 (1 条)</h4><ul><li><a href="https://wallstreetcn.com/articles/3755448" target="_blank" class="news-link">阿里DeepSeek时刻！开源新架构模型：推理快10倍、成本暴降90%</a> [10]</li></ul><h4>财联社热门 (2 条)</h4><ul><li><a href="https://www.cls.cn/detail/2142927" target="_blank" class="news-link">国家发改委：加大人工智能领域金融和财政支持力度</a> <font color='red'><strong>[4]</strong></font></li><li><a href="https://www.cls.cn/detail/2142938" target="_blank" class="news-link">9月12日投资避雷针：7天暴涨近90% 人气股提示称仅间接持有宇树科技0.3%股权</a> [12]</li></ul><h4>凤凰网 (1 条)</h4><ul><li><a href="https://news.ifeng.com/c/8ma6O1quoxu" target="_blank" class="news-link">这个新动向，中国须高度警惕</a> <font color='red'><strong>[4]</strong></font></li></ul><h4>微博 (2 条)</h4><ul><li><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23iPhoneAir%E5%9C%A8%E5%8D%8E%E5%8F%91%E5%94%AE%E5%BB%B6%E6%9C%9F%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26realpos%3D17%26filter_type%3Drealtimehot%26c_type%3D31%26flag%3D1%26lcate%3D5001%26band_rank%3D17%26q%3D%2523iPhoneAir%25E5%259C%25A8%25E5%258D%258E%25E5%258F%2591%25E5%2594%25AE%25E5%25BB%25B6%25E6%259C%259F%2523%26cate%3D5001%26stream_entry_id%3D31%26pos%3D18%26dgr%3D0%26display_time%3D1757641810%26pre_seqid%3D17576418104000203120743" target="_blank" class="news-link">iPhoneAir在华发售延期</a> [17]</li><li><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E5%8D%A1%E5%A1%94%E5%B0%94%E9%A6%96%E7%9B%B8%E9%81%97%E6%86%BE%E7%BE%8E%E5%9B%BD%E6%83%85%E6%8A%A5%E5%A4%AA%E8%BF%9F%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26realpos%3D25%26filter_type%3Drealtimehot%26c_type%3D31%26flag%3D0%26lcate%3D5001%26band_rank%3D25%26q%3D%2523%25E5%258D%25A1%25E5%25A1%2594%25E5%25B0%2594%25E9%25A6%2596%25E7%259B%25B8%25E9%2581%2597%25E6%2586%25BE%25E7%25BE%258E%25E5%259B%25BD%25E6%2583%2585%25E6%258A%25A5%25E5%25A4%25AA%25E8%25BF%259F%2523%26cate%3D5001%26stream_entry_id%3D31%26pos%3D26%26dgr%3D0%26display_time%3D1757641810%26pre_seqid%3D17576418104000203120743" target="_blank" class="news-link">卡塔尔首相遗憾美国情报太迟</a> [25]</li></ul><h4>知乎 (1 条)</h4><ul><li><a href="https://www.zhihu.com/question/1949200132173173317" target="_blank" class="news-link">中国国防部长董军 9 日晚同美国国防部长视频通话，哪些信息值得关注？</a> [12]</li></ul></div>
+        <div class="container">
+            <div class="header">
+                <div class="header-title">热点新闻分析</div>
+                <div class="header-info">
+                    <div class="info-item">
+                        <span class="info-label">报告类型</span>
+                        <span class="info-value">当日汇总</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">新闻总数</span>
+                        <span class="info-value">435 条</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">热点新闻</span>
+                        <span class="info-value">66 条</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">生成时间</span>
+                        <span class="info-value">09-12 10:59</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">国产 中国</div>
+                            <div class="word-count hot">17 条</div>
+                        </div>
+                        <div class="word-index">1/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num high">4-5</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142628" target="_blank" class="news-link">中国央行与印尼央行共同启动双边交易本币结算框架和二维码互联互通合作项目</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">抖音</span><span class="rank-num top">1-19</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.douyin.com/hot/2233362" target="_blank" class="news-link">星巴克中国出售进入倒计时</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">3</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">微博</span><span class="rank-num high">4-15</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E9%9F%A9%E5%9B%BD%E6%B5%B7%E8%AD%A6%E5%B0%86%E6%95%91%E7%94%9F%E8%A1%A3%E8%AE%A9%E7%BB%99%E4%B8%AD%E5%9B%BD%E8%80%81%E4%BA%BA%E5%90%8E%E9%81%87%E9%9A%BE%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26cate%3D5001%26pos%3D10%26stream_entry_id%3D31%26flag%3D0%26lcate%3D5001%26c_type%3D31%26band_rank%3D9%26q%3D%2523%25E9%259F%25A9%25E5%259B%25BD%25E6%25B5%25B7%25E8%25AD%25A6%25E5%25B0%2586%25E6%2595%2591%25E7%2594%259F%25E8%25A1%25A3%25E8%25AE%25A9%25E7%25BB%2599%25E4%25B8%25AD%25E5%259B%25BD%25E8%2580%2581%25E4%25BA%25BA%25E5%2590%258E%25E9%2581%2587%25E9%259A%25BE%2523%26filter_type%3Drealtimehot%26dgr%3D0%26realpos%3D9%26display_time%3D1757608222%26pre_seqid%3D17576082223430221473862" target="_blank" class="news-link">韩国海警将救生衣让给中国老人后遇难</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">4</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">知乎</span><span class="rank-num ">6-10</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.zhihu.com/question/1949141640016008427" target="_blank" class="news-link">日本将部署远程导弹，射程覆盖中国沿海地区，如何看待日本这一行为？这体现日方的哪些动机？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">5</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num ">8-13</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142653" target="_blank" class="news-link">全球最长航线即将启航！中国直飞阿根廷 全程2万公里无需换乘</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">6</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">9-29</span><span class="time-info">00时30分~10时59分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E5%B0%8F%E9%B9%BF%E6%8E%A2%E7%B4%A2%E4%B8%AD%E5%9B%BD%E6%9C%80%E5%8E%9F%E5%A7%8B%E7%9A%84%E5%9C%9F%E5%9C%B0" target="_blank" class="news-link">小鹿探索中国最原始的土地</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">7</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">澎湃新闻</span><span class="rank-num ">10-16</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.thepaper.cn/newsDetail_forward_31594558" target="_blank" class="news-link">外交部：黄岩岛是中国固有领土，中方不接受菲律宾所谓的“抗议”</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">8</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">凤凰网</span><span class="rank-num ">10</span><span class="time-info">00时30分~07时22分</span><span class="count-info">13次</span>
+                            </div>
+                            <div class="news-title"><a href="https://news.ifeng.com/c/8mYv6QaDdD6" target="_blank" class="news-link">针对中国人，NASA新动作</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">9</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">21-28</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E7%8E%8B%E8%BE%B0%E8%A2%AB%E5%85%8D%E5%8E%BB%E4%B8%AD%E5%9B%BD%E5%B7%A5%E7%A8%8B%E9%99%A2%E5%89%AF%E9%99%A2%E9%95%BF%E8%81%8C%E5%8A%A1" target="_blank" class="news-link">王辰被免去中国工程院副院长职务</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">10</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">凤凰网</span><span class="rank-num top">2</span><span class="time-info">07时40分~10时59分</span><span class="count-info">3次</span>
+                            </div>
+                            <div class="news-title"><a href="https://news.ifeng.com/c/8ma0p4yB43a" target="_blank" class="news-link">官宣福建舰首次“远航秀”，专家：中国的三航母时代指日可待</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">11</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">凤凰网</span><span class="rank-num high">4</span><span class="time-info">09时51分~10时59分</span><span class="count-info">2次</span>
+                            </div>
+                            <div class="news-title"><a href="https://news.ifeng.com/c/8ma6O1quoxu" target="_blank" class="news-link">这个新动向，中国须高度警惕</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">12</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num top">1-9</span><span class="time-info">07时40分~10时59分</span><span class="count-info">3次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142884" target="_blank" class="news-link">【早报】墨西哥称计划对中国等国征收50%的关税，外交部回应；我国有望诞生一世界级金矿</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">13</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num ">12-13</span><span class="time-info">00时30分~03时18分</span><span class="count-info">5次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142285" target="_blank" class="news-link">外资热情势不可挡！大摩：超九成美国投资者愿加仓中国资产</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">14</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">微博</span><span class="rank-num ">25-26</span><span class="time-info">04时23分~05时20分</span><span class="count-info">3次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E7%8E%8B%E8%BE%B0%E8%A2%AB%E5%85%8D%E5%8E%BB%E4%B8%AD%E5%9B%BD%E5%B7%A5%E7%A8%8B%E9%99%A2%E5%89%AF%E9%99%A2%E9%95%BF%E8%81%8C%E5%8A%A1%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26cate%3D5001%26pos%3D26%26stream_entry_id%3D31%26flag%3D0%26lcate%3D5001%26c_type%3D31%26band_rank%3D26%26q%3D%2523%25E7%258E%258B%25E8%25BE%25B0%25E8%25A2%25AB%25E5%2585%258D%25E5%258E%25BB%25E4%25B8%25AD%25E5%259B%25BD%25E5%25B7%25A5%25E7%25A8%258B%25E9%2599%25A2%25E5%2589%25AF%25E9%2599%25A2%25E9%2595%25BF%25E8%2581%258C%25E5%258A%25A1%2523%26filter_type%3Drealtimehot%26dgr%3D0%26realpos%3D26%26display_time%3D1757621367%26pre_seqid%3D175762136769892214746148" target="_blank" class="news-link">王辰被免去中国工程院副院长职务</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">15</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">知乎</span><span class="rank-num ">12</span><span class="time-info">09时51分~10时59分</span><span class="count-info">2次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.zhihu.com/question/1949200132173173317" target="_blank" class="news-link">中国国防部长董军 9 日晚同美国国防部长视频通话，哪些信息值得关注？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">16</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">知乎</span><span class="rank-num ">9</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.zhihu.com/question/1949504921796842777" target="_blank" class="news-link">星巴克员工曝月饼卖不掉垫钱自购，星巴克中国回应称正在核实情况，不允许垫款自购行为，具体情况如何？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">17</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">凤凰网</span><span class="rank-num ">10</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://news.ifeng.com/c/8mZLJcaA7UU" target="_blank" class="news-link">近1500吨！中国有望诞生又一世界级金矿</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">美国 欧洲 非洲 亚洲 南极 北极 北美 南美</div>
+                            <div class="word-count hot">17 条</div>
+                        </div>
+                        <div class="word-index">2/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num top">1-2</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142656" target="_blank" class="news-link">美国CPI通胀较前月走高 但不会阻止美联储下周降息</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">凤凰网</span><span class="rank-num top">3-4</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://news.ifeng.com/c/8mYrRk0lAwo" target="_blank" class="news-link">查理·柯克的“人血馒头”，美国两派打算怎么吃？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">3</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num top">2-6</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755424" target="_blank" class="news-link">通胀基本符合预期，美国8月CPI同比上涨2.9%，环比升至0.4%</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">4</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">知乎</span><span class="rank-num top">3-7</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.zhihu.com/question/1949379106606117291" target="_blank" class="news-link">政治盟友演讲时遭枪击身亡，特朗普下令全美降半旗，此事将对美国政坛产生哪些影响？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">5</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num high">4-9</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E7%BE%8E%E5%9B%BDUP%E5%88%86%E6%9E%90%E6%9F%A5%E7%90%86%E6%9F%AF%E5%85%8B%E9%81%AD%E6%9E%AA%E5%87%BB" target="_blank" class="news-link">美国UP分析查理柯克遭枪击</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">6</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">知乎</span><span class="rank-num high">4-13</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.zhihu.com/question/1949125421812639200" target="_blank" class="news-link">我国发现「亚洲锂腰带」，长度达 2800 公里，这一发现意味着什么？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">7</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num ">9-10</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142657" target="_blank" class="news-link">美国8月CPI同比增长2.9% 三大期指小幅走高 | 今夜看点</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">8</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">抖音</span><span class="rank-num ">9-28</span><span class="time-info">02时31分~10时59分</span><span class="count-info">11次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.douyin.com/hot/2233059" target="_blank" class="news-link">芬兰男篮队史首进欧洲杯四强</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">9</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">澎湃新闻</span><span class="rank-num ">11-15</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.thepaper.cn/newsDetail_forward_31593442" target="_blank" class="news-link">美国为他降半旗，被枪杀的MAGA大“网红”查理·柯克是谁？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">10</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">12-28</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E6%9F%A5%E7%90%86%E6%9F%AF%E5%85%8B%E9%81%AD%E6%9E%AA%E5%87%BB%E6%9A%B4%E9%9C%B2%E7%BE%8E%E5%9B%BD%E4%B8%89%E5%A4%A7%E9%9A%BE%E9%A2%98" target="_blank" class="news-link">查理柯克遭枪击暴露美国三大难题</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">11</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">凤凰网</span><span class="rank-num ">12</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://news.ifeng.com/c/8mZ8gAGsmv3" target="_blank" class="news-link">被美国背叛了吗？卡塔尔首相：我不能直言</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">12</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">澎湃新闻</span><span class="rank-num ">14-18</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.thepaper.cn/newsDetail_forward_31593056" target="_blank" class="news-link">视频｜一声枪响，特朗普盟友倒在美国校园演讲现场的血泊中身亡</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">13</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">澎湃新闻</span><span class="rank-num ">16-20</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.thepaper.cn/newsDetail_forward_31594424" target="_blank" class="news-link">特朗普盟友遇刺：政治暴力成美国“残酷常态”，言论武器化带来全球威胁</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">14</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">7</span><span class="time-info">00时30分</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E4%BB%8E%E6%9F%A5%E7%90%86%E6%9F%AF%E5%85%8B%E4%B9%8B%E6%AD%BB%E7%9C%8B%E7%BE%8E%E5%9B%BD%E6%94%BF%E6%B2%BB%E6%9A%B4%E5%8A%9B" target="_blank" class="news-link">从查理柯克之死看美国政治暴力</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">15</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num ">10</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755425" target="_blank" class="news-link">美国上周首申失业金人数26.3万人，跃升至近四年高位</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">16</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">微博</span><span class="rank-num ">12</span><span class="time-info">00时30分</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E4%B8%80%E5%90%8D%E7%BD%91%E7%BA%A2%E8%A2%AB%E6%9D%80%E7%BE%8E%E5%9B%BD%E4%B8%BA%E4%BD%95%E4%BC%9A%E9%99%8D%E5%8D%8A%E6%97%97%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26cate%3D5001%26pos%3D13%26stream_entry_id%3D31%26flag%3D0%26lcate%3D5001%26c_type%3D31%26band_rank%3D12%26q%3D%2523%25E4%25B8%2580%25E5%2590%258D%25E7%25BD%2591%25E7%25BA%25A2%25E8%25A2%25AB%25E6%259D%2580%25E7%25BE%258E%25E5%259B%25BD%25E4%25B8%25BA%25E4%25BD%2595%25E4%25BC%259A%25E9%2599%258D%25E5%258D%258A%25E6%2597%2597%2523%26filter_type%3Drealtimehot%26dgr%3D0%26realpos%3D12%26display_time%3D1757608222%26pre_seqid%3D17576082223430221473862" target="_blank" class="news-link">一名网红被杀美国为何会降半旗</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">17</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">微博</span><span class="rank-num ">25</span><span class="time-info">09时51分</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E5%8D%A1%E5%A1%94%E5%B0%94%E9%A6%96%E7%9B%B8%E9%81%97%E6%86%BE%E7%BE%8E%E5%9B%BD%E6%83%85%E6%8A%A5%E5%A4%AA%E8%BF%9F%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26realpos%3D25%26filter_type%3Drealtimehot%26c_type%3D31%26flag%3D0%26lcate%3D5001%26band_rank%3D25%26q%3D%2523%25E5%258D%25A1%25E5%25A1%2594%25E5%25B0%2594%25E9%25A6%2596%25E7%259B%25B8%25E9%2581%2597%25E6%2586%25BE%25E7%25BE%258E%25E5%259B%25BD%25E6%2583%2585%25E6%258A%25A5%25E5%25A4%25AA%25E8%25BF%259F%2523%26cate%3D5001%26stream_entry_id%3D31%26pos%3D26%26dgr%3D0%26display_time%3D1757641810%26pre_seqid%3D17576418104000203120743" target="_blank" class="news-link">卡塔尔首相遗憾美国情报太迟</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">苹果 库克 iphone ipad mac ios</div>
+                            <div class="word-count hot">11 条</div>
+                        </div>
+                        <div class="word-index">3/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">10-26</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E5%AE%9E%E6%B5%8BiPhone17%E5%B1%B1%E5%AF%A8%E6%9C%BA" target="_blank" class="news-link">实测iPhone17山寨机</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">知乎</span><span class="rank-num ">11-17</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.zhihu.com/question/1948934008978240284" target="_blank" class="news-link">iPhone 17 系列 9 月 12 日 20 点开启预售，你会入手吗？你选择入手哪款？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">3</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">13-29</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E5%90%90%E6%A7%BD%E5%BC%8F%E8%A7%A3%E6%9E%90%E8%8B%B9%E6%9E%9C%E5%8F%91%E5%B8%83%E4%BC%9A" target="_blank" class="news-link">吐槽式解析苹果发布会</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">4</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">贴吧</span><span class="rank-num ">14-17</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://tieba.baidu.com/hottopic/browse/hottopic?topic_id=28344930&amp;amp;topic_name=%E8%8B%B9%E6%9E%9C%E6%98%AF%E6%87%82%E5%BE%97%E7%BB%B4%E6%8A%A4%E9%9F%A9%E7%94%B7%E8%87%AA%E5%B0%8A%E5%BF%83%E7%9A%84" target="_blank" class="news-link">苹果是懂得维护韩男自尊心的</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">5</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">16-28</span><span class="time-info">00时30分~09时51分</span><span class="count-info">15次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=iPhone17%E9%9A%90%E8%97%8F%E7%9A%84%E4%B8%89%E5%A4%A7%E7%BC%BA%E7%82%B9" target="_blank" class="news-link">iPhone17隐藏的三大缺点</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">6</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">抖音</span><span class="rank-num ">23-30</span><span class="time-info">00时30分~07时40分</span><span class="count-info">13次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.douyin.com/hot/2231629" target="_blank" class="news-link">iPhone 17系列值得买吗</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">7</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">抖音</span><span class="rank-num ">10-30</span><span class="time-info">01时20分~10时59分</span><span class="count-info">8次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.douyin.com/hot/2232949" target="_blank" class="news-link">6分钟看完苹果发布会的转场片段</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">8</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num top">1</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158719" target="_blank" class="news-link">iPhone 上有什么通用的方式，可以不安装某个软件，同时正常使用这个软件？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">9</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">微博</span><span class="rank-num ">14-17</span><span class="time-info">09时51分~10时59分</span><span class="count-info">2次</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23iPhoneAir%E5%9C%A8%E5%8D%8E%E5%8F%91%E5%94%AE%E5%BB%B6%E6%9C%9F%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26realpos%3D17%26filter_type%3Drealtimehot%26c_type%3D31%26flag%3D1%26lcate%3D5001%26band_rank%3D17%26q%3D%2523iPhoneAir%25E5%259C%25A8%25E5%258D%258E%25E5%258F%2591%25E5%2594%25AE%25E5%25BB%25B6%25E6%259C%259F%2523%26cate%3D5001%26stream_entry_id%3D31%26pos%3D18%26dgr%3D0%26display_time%3D1757641810%26pre_seqid%3D17576418104000203120743" target="_blank" class="news-link">iPhoneAir在华发售延期</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">10</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">抖音</span><span class="rank-num ">15</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.douyin.com/hot/2234116" target="_blank" class="news-link">iPhone Air在华发售延期</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">11</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num ">30</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158510" target="_blank" class="news-link">macless-haystack 1.4.3 支持实时扫描定位器的蓝牙信号</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">ai 人工智能</div>
+                            <div class="word-count warm">8 条</div>
+                        </div>
+                        <div class="word-index">4/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num high">5-9</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755377" target="_blank" class="news-link">创业板暴涨超5%，AI硬件股掀涨停潮，“易中天”大涨，恒指低开高走守住26000点，创新药跌幅显著收窄</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num top">3-4</span><span class="time-info">09时51分~10时59分</span><span class="count-info">2次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142927" target="_blank" class="news-link">国家发改委：加大人工智能领域金融和财政支持力度</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">3</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num high">4-13</span><span class="time-info">07时22分~10时59分</span><span class="count-info">4次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142858" target="_blank" class="news-link">AI的风猛吹存储芯片：美光科技、闪迪暴拉七连阳</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">4</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">github</span><span class="rank-num ">9</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://github.com/aaPanel/BillionMail" target="_blank" class="news-link">aaPanel / BillionMail</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">5</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num ">10</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158661" target="_blank" class="news-link">分享一个刚做完的 AI 图像处理工具，技术栈挺有意思的</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">6</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">github</span><span class="rank-num ">17</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools" target="_blank" class="news-link">x1xhlol / system-prompts-and-models-of-ai-tools</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">7</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num ">19</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158598" target="_blank" class="news-link">分享下自己实现 10x 开发工具， async-ai-engineer.</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">8</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num ">22</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158578" target="_blank" class="news-link">ai 盛行的年代我却做了个文本分析工具站，方便懒得编程的朋友</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">宇树 王兴兴</div>
+                            <div class="word-count ">2 条</div>
+                        </div>
+                        <div class="word-index">5/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num top">1-3</span><span class="time-info">00时30分~07时40分</span><span class="count-info">14次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142476" target="_blank" class="news-link">持仓宇树科技0.51%股权的这家房企 连收6个涨停板</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num ">7-12</span><span class="time-info">09时51分~10时59分</span><span class="count-info">2次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142938" target="_blank" class="news-link">9月12日投资避雷针：7天暴涨近90% 人气股提示称仅间接持有宇树科技0.3%股权</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">马斯克 特斯拉 推特 space</div>
+                            <div class="word-count ">2 条</div>
+                        </div>
+                        <div class="word-index">6/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num high">4-6</span><span class="time-info">00时30分~06时40分</span><span class="count-info">12次</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755347" target="_blank" class="news-link">埃里森一度超马斯克登顶全球首富！甲骨文股价飙升推动财富暴增890亿美元</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num top">3-19</span><span class="time-info">00时30分~10时59分</span><span class="count-info">16次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E7%89%B9%E6%96%AF%E6%8B%89HW3%E7%A1%AC%E4%BB%B6FSD%E5%9B%BD%E5%86%85%E9%A6%96%E8%AF%95" target="_blank" class="news-link">特斯拉HW3硬件FSD国内首试</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">chatgpt Sam Altman openai</div>
+                            <div class="word-count ">2 条</div>
+                        </div>
+                        <div class="word-index">7/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num ">6-10</span><span class="time-info">04时39分~10时59分</span><span class="count-info">9次</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755415" target="_blank" class="news-link">对甲骨文“炸裂大单”的质疑：全指望OpenAI、收入都在长期、能赚钱吗、有钱建吗？</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num high">5</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158691" target="_blank" class="news-link">ChatGPT plus 全球统一价了</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">手机</div>
+                            <div class="word-count ">2 条</div>
+                        </div>
+                        <div class="word-index">8/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">bilibili 热搜</span><span class="rank-num ">22-30</span><span class="time-info">03时18分~10时59分</span><span class="count-info">10次</span>
+                            </div>
+                            <div class="news-title"><a href="https://search.bilibili.com/all?keyword=%E6%B7%98%E6%B1%B0128G%E6%89%8B%E6%9C%BA%E8%83%BD%E5%90%A6%E7%BC%93%E8%A7%A3%E5%82%A8%E5%AD%98%E7%84%A6%E8%99%91" target="_blank" class="news-link">淘汰128G手机能否缓解储存焦虑</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">v2ex</span><span class="rank-num high">4</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.v2ex.com/t/1158696" target="_blank" class="news-link">手机网络每天在固定的时间固定的地点消失, 请大家帮忙分析下.</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">科技</div>
+                            <div class="word-count ">2 条</div>
+                        </div>
+                        <div class="word-index">9/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num top">1-7</span><span class="time-info">00时30分~07时22分</span><span class="count-info">13次</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755317" target="_blank" class="news-link">科技股力挺标普纳指新高，甲骨文暴涨36%，中概股回调，美债走强</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">2</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">财联社热门</span><span class="rank-num ">8-9</span><span class="time-info">00时30分~07时22分</span><span class="count-info">13次</span>
+                            </div>
+                            <div class="news-title"><a href="https://www.cls.cn/detail/2142369" target="_blank" class="news-link">【焦点复盘】甲骨文飙升引爆硬科技集体反攻，创指、深成指齐创年内新高，全市场近150股涨超9%</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">DeepSeek 梁文锋</div>
+                            <div class="word-count ">1 条</div>
+                        </div>
+                        <div class="word-index">10/12</div>
+                    </div>
+                    <div class="news-item ">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">华尔街见闻</span><span class="rank-num ">9-10</span><span class="time-info">09时51分~10时59分</span><span class="count-info">2次</span>
+                            </div>
+                            <div class="news-title"><a href="https://wallstreetcn.com/articles/3755448" target="_blank" class="news-link">阿里DeepSeek时刻！开源新架构模型：推理快10倍、成本暴降90%</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">流浪地球 郭帆 三体 刘慈欣</div>
+                            <div class="word-count ">1 条</div>
+                        </div>
+                        <div class="word-index">11/12</div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">微博</span><span class="rank-num ">17</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E7%94%B5%E5%BD%B1%E6%B5%81%E6%B5%AA%E5%9C%B0%E7%90%83%E7%AC%AC%E4%B8%89%E9%83%A8%E4%B8%8A%E4%B8%8B%E9%9B%86%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26c_type%3D31%26lcate%3D5001%26flag%3D1%26pos%3D18%26stream_entry_id%3D31%26band_rank%3D17%26q%3D%2523%25E7%2594%25B5%25E5%25BD%25B1%25E6%25B5%2581%25E6%25B5%25AA%25E5%259C%25B0%25E7%2590%2583%25E7%25AC%25AC%25E4%25B8%2589%25E9%2583%25A8%25E4%25B8%258A%25E4%25B8%258B%25E9%259B%2586%2523%26dgr%3D0%26realpos%3D17%26cate%3D5001%26filter_type%3Drealtimehot%26display_time%3D1757645830%26pre_seqid%3D1757645830191029133322" target="_blank" class="news-link">电影流浪地球第三部上下集</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="word-group">
+                    <div class="word-header">
+                        <div class="word-info">
+                            <div class="word-name">谷歌 google gemini deepmind</div>
+                            <div class="word-count ">1 条</div>
+                        </div>
+                        <div class="word-index">12/12</div>
+                    </div>
+                    <div class="news-item new">
+                        <div class="news-number">1</div>
+                        <div class="news-content">
+                            <div class="news-header">
+                                <span class="source-name">github</span><span class="rank-num high">4</span><span class="time-info">10时59分</span>
+                            </div>
+                            <div class="news-title"><a href="https://github.com/google/material-design-icons" target="_blank" class="news-link">google / material-design-icons</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="new-section">
+                    <div class="new-section-title">本次新增热点 (共 15 条)</div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">v2ex · 7条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank top">1</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158719" target="_blank" class="news-link">iPhone 上有什么通用的方式，可以不安装某个软件，同时正常使用这个软件？</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">2</div>
+                            <div class="new-item-rank high">4</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158696" target="_blank" class="news-link">手机网络每天在固定的时间固定的地点消失, 请大家帮忙分析下.</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">3</div>
+                            <div class="new-item-rank high">5</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158691" target="_blank" class="news-link">ChatGPT plus 全球统一价了</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">4</div>
+                            <div class="new-item-rank ">10</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158661" target="_blank" class="news-link">分享一个刚做完的 AI 图像处理工具，技术栈挺有意思的</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">5</div>
+                            <div class="new-item-rank ">19</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158598" target="_blank" class="news-link">分享下自己实现 10x 开发工具， async-ai-engineer.</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">6</div>
+                            <div class="new-item-rank ">22</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158578" target="_blank" class="news-link">ai 盛行的年代我却做了个文本分析工具站，方便懒得编程的朋友</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">7</div>
+                            <div class="new-item-rank ">30</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.v2ex.com/t/1158510" target="_blank" class="news-link">macless-haystack 1.4.3 支持实时扫描定位器的蓝牙信号</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">华尔街见闻 · 1条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank ">10</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://wallstreetcn.com/articles/3755425" target="_blank" class="news-link">美国上周首申失业金人数26.3万人，跃升至近四年高位</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">凤凰网 · 1条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank ">10</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://news.ifeng.com/c/8mZLJcaA7UU" target="_blank" class="news-link">近1500吨！中国有望诞生又一世界级金矿</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">微博 · 1条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank ">17</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://m.weibo.cn/search?containerid=100103type%3D1%26t%3D10%26q%3D%23%E7%94%B5%E5%BD%B1%E6%B5%81%E6%B5%AA%E5%9C%B0%E7%90%83%E7%AC%AC%E4%B8%89%E9%83%A8%E4%B8%8A%E4%B8%8B%E9%9B%86%23&amp;stream_entry_id=31&amp;isnewpage=1&amp;extparam=seat%3D1%26c_type%3D31%26lcate%3D5001%26flag%3D1%26pos%3D18%26stream_entry_id%3D31%26band_rank%3D17%26q%3D%2523%25E7%2594%25B5%25E5%25BD%25B1%25E6%25B5%2581%25E6%25B5%25AA%25E5%259C%25B0%25E7%2590%2583%25E7%25AC%25AC%25E4%25B8%2589%25E9%2583%25A8%25E4%25B8%258A%25E4%25B8%258B%25E9%259B%2586%2523%26dgr%3D0%26realpos%3D17%26cate%3D5001%26filter_type%3Drealtimehot%26display_time%3D1757645830%26pre_seqid%3D1757645830191029133322" target="_blank" class="news-link">电影流浪地球第三部上下集</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">抖音 · 1条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank ">15</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.douyin.com/hot/2234116" target="_blank" class="news-link">iPhone Air在华发售延期</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">知乎 · 1条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank ">9</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://www.zhihu.com/question/1949504921796842777" target="_blank" class="news-link">星巴克员工曝月饼卖不掉垫钱自购，星巴克中国回应称正在核实情况，不允许垫款自购行为，具体情况如何？</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="new-source-group">
+                        <div class="new-source-title">github · 3条</div>
+                        <div class="new-item">
+                            <div class="new-item-number">1</div>
+                            <div class="new-item-rank high">4</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://github.com/google/material-design-icons" target="_blank" class="news-link">google / material-design-icons</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">2</div>
+                            <div class="new-item-rank ">9</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://github.com/aaPanel/BillionMail" target="_blank" class="news-link">aaPanel / BillionMail</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="new-item">
+                            <div class="new-item-number">3</div>
+                            <div class="new-item-rank ">17</div>
+                            <div class="new-item-content">
+                                <div class="new-item-title"><a href="https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools" target="_blank" class="news-link">x1xhlol / system-prompts-and-models-of-ai-tools</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
     </html>
     
